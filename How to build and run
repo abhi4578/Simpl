@@ -1,5 +1,5 @@
 To build  execute the command,
-./Build.sh (it generates the excutable file Simpl)
+./Build.sh (it generates the executable file Simpl)
 
 To test with eg_test_case:
 ./Simpl < eg_test_case 
