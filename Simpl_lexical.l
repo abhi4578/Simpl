@@ -49,7 +49,7 @@ void yyerror(char *s);
 			      return ID;}
 
 ["][^"]*["]	{//printf("string = %s\n",yytext);
-		return STRING;}// ",'-not between string
+		return STRING;}
 
 [/][/][^\n]*		{//printf("Ignore comment\n");
 			;} // ignore that line
