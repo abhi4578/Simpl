@@ -54,7 +54,7 @@ void yyerror(char *s);
 [/][/][^\n]*		{;} 
 
 
-<<EOF>>	 {return '#';}
+<<EOF>>	 {return eof;}
 [\n]	{count++;}
 [ \t]		{;}
 
