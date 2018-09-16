@@ -21,11 +21,12 @@ void yyerror(char *s);
 %token leq
 %token geq
 %token neq
+%token eof
 %token eq
 %%
 
-program : stmt_list  '#'   {char s[]="program -> stmt_list\n"; strcat(buffer,s); if(!flag) printf("%s",buffer); exit(0);}
-        |stmt_list error    {printf("'#' is missing at the end of program\n");}        
+program : stmt_list  eof   {char s[]="program -> stmt_list\n"; strcat(buffer,s); if(!flag) printf("%s",buffer); exit(0);}
+        |stmt_list error    {printf("eof is missing at the end of program\n");}        
 
 stmt_list : stmt_list stmt {char s[]="stmt_list -> stmt_list stmt\n"; strcat(buffer,s);}
 	 | stmt      {char s[]="stmt_list-> stmt\n"; strcat(buffer,s);}
