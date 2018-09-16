@@ -2,6 +2,9 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include "Err.h"
+int flag=0;
+char buffer[1000];
 int yylex(void);
 void yyerror(char *s);
 %}
@@ -19,61 +22,71 @@ void yyerror(char *s);
 %token geq
 %token neq
 %token eq
-
-
 %%
 
-program : stmt_list  '#'               {printf("program -> stmt_list\n"); exit(0);}
+program : stmt_list  '#'   {char s[]="program -> stmt_list\n"; strcat(buffer,s); if(!flag) printf("%s",buffer); exit(0);}
+        |stmt_list error    {printf("'#' is missing at the end of program\n");}        
 
-stmt_list : stmt_list stmt {printf("stmt_list -> stmt_list stmt\n");}
-	 | stmt      {printf("stmt_list-> stmt\n");}
-
-
-stmt : assign_stmt {printf("stmt -> assign_stmt \n");}
-     | print_stmt {printf("stmt ->  print_stmt\n");}
-     | if_stmt {printf("stmt -> if_stmt \n");}
-
-assign_stmt : ID '=' expr ';'  {printf("assign_stmt -> ID = expr \n");}
-
-print_stmt : PRINT expr ';'   {printf("print_stmt -> PRINT expr ; \n");} 
-	 | PRINT STRING ';'   {printf("print_stmt ->  PRINT STRING ; \n");} 
-	 | PRINT NEWLINE ';'  {printf("print_stmt ->  PRINT NEWLINE ;\n");}
-
-if_stmt : IF expr THEN stmt_list ENDIF {printf("if_stmt -> IF expr THEN stmt_list ENDIF \n");}
-        | IF expr THEN stmt_list ELSE stmt_list ENDIF   {printf("if_stmt ->  IF expr THEN stmt_list ELSE stmt_list ENDIF \n");}
+stmt_list : stmt_list stmt {char s[]="stmt_list -> stmt_list stmt\n"; strcat(buffer,s);}
+	 | stmt      {char s[]="stmt_list-> stmt\n"; strcat(buffer,s);}
 
 
-expr : expr eq Q { printf("expr -> expr == Q\n");}
-     | expr neq Q { printf("expr ->expr != Q  \n");}
-     | Q { printf("expr -> Q \n");}
+stmt : assign_stmt {char s[]="stmt -> assign_stmt \n"; strcat(buffer,s);}
+     | print_stmt {char s[]="stmt ->  print_stmt\n"; strcat(buffer,s);}
+     | if_stmt {char s[]="stmt -> if_stmt \n"; strcat(buffer,s);}
+     | error ';' {printf("invalid statement\n");}
+
+assign_stmt : ID '=' expr ';'  {char s[]="assign_stmt -> ID = expr \n"; strcat(buffer,s);}
+            | ID '=' expr error  {printf("';' missing\n");}
+            
+
+
+print_stmt : PRINT expr ';'   {char s[]="print_stmt -> PRINT expr ; \n"; strcat(buffer,s);} 
+	 | PRINT STRING ';'   {char s[]="print_stmt ->  PRINT STRING ; \n"; strcat(buffer,s);} 
+	 | PRINT NEWLINE ';'  {char s[]="print_stmt ->  PRINT NEWLINE ;\n"; strcat(buffer,s);}
+   | PRINT a error    {printf("';' missing\n");}
+   |PRINT error ';'    {printf("error after print\n");}
+   
+a : STRING | NEWLINE | expr 
+
+if_stmt : IF expr THEN stmt_list ENDIF                {char s[]=" if_stmt -> IF expr THEN stmt_list ENDIF \n"; strcat(buffer,s);}
+        | IF expr THEN stmt_list ELSE stmt_list ENDIF {char s[]="if_stmt ->IF expr THEN stmt_list ELSE stmt_list ENDIF \n"; strcat(buffer,s);}
+        | IF expr THEN stmt_list error                {printf("endif is missing \n");}
+        | IF expr THEN stmt_list ELSE stmt_list error {printf("endif is missing \n");}
+
+expr : expr eq Q { char s[]="expr -> expr == Q\n"; strcat(buffer,s);}
+     | expr neq Q { char s[]="expr ->expr != Q  \n"; strcat(buffer,s);}
+     | Q { char s[]="expr -> Q \n"; strcat(buffer,s);}
        
-Q : Q '<' exp {printf("Q -> Q < exp\n");}
-   | Q '>' exp {printf("Q ->  Q  > exp \n");}
-   | Q leq exp {printf("Q ->  Q <= exp\n");}
-   | Q geq exp {printf("Q ->  Q >= exp \n");}
-   | exp  {printf("Q -> exp   \n");}
+Q : Q '<' exp {char s[]="Q -> Q < exp\n"; strcat(buffer,s);}
+   | Q '>' exp {char s[]="Q ->  Q  > exp \n"; strcat(buffer,s);}
+   | Q leq exp {char s[]="Q ->  Q <= exp\n"; strcat(buffer,s);}
+   | Q geq exp {char s[]="Q ->  Q >= exp \n"; strcat(buffer,s);}
+   | exp  {char s[]="Q -> exp   \n"; strcat(buffer,s);}
 
-exp : exp '+' T {printf("exp-> exp + T \n");}
-    | exp '-' T { printf("exp -> exp - T\n");}
-    | T {printf("exp -> T \n");}
+exp : exp '+' T {char s[]="exp-> exp + T \n"; strcat(buffer,s);}
+    | exp '-' T { char s[]="exp -> exp - T\n"; strcat(buffer,s);}
+    | T {char s[]="exp -> T \n"; strcat(buffer,s);}
 
-T : T '*' W {printf("T -> T * W\n");}
-  | T '/' W {printf("T -> T / W\n");} 
-  | W	{printf("T -> W\n");}
+T : T '*' W {char s[]="T -> T * W\n"; strcat(buffer,s);}
+  | T '/' W {char s[]="T -> T / W\n"; strcat(buffer,s);} 
+  | W	{char s[]="T -> W\n"; strcat(buffer,s);}
 
-W : '-'W 	     {printf("W -> -W\n");} 
-  | S		     {printf("W -> S\n");}
+W : '-'W 	     {char s[]="W -> -W\n"; strcat(buffer,s);} 
+  | S		     {char s[]="W -> S\n"; strcat(buffer,s);}
 
 
-S : '(' expr ')' {printf("S -> '(' expr ')' \n");}
-  | INT {printf("S ->  INT \n");}
-  | ID  {printf("S -> ID\n");}
-
+S : '(' expr ')' {char s[]="S -> '(' expr ')' \n"; strcat(buffer,s);}
+  | INT {char s[]="S ->  INT \n"; strcat(buffer,s);}
+  | ID  {char s[]="S -> ID\n"; strcat(buffer,s);}
+  | '(' expr error {printf("')' missing\n");}
+  |'(' error ')'{printf("error in expression\n");}
   ;
 %%
-void yyerror (char *s) {fprintf (stderr, "%s\n", s);} 
+void yyerror (char *s) {fprintf (stderr, "%s at line number %d ", s,count);flag=1;} 
 int main()
 {
 return yyparse();
 }
+
 
