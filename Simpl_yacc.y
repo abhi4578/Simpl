@@ -25,8 +25,8 @@ void yyerror(char *s);
 %token eq
 %%
 
-program : stmt_list  eof   {char s[]="program -> stmt_list\n"; strcat(buffer,s); if(!flag) printf("%s",buffer); exit(0);}
-        |stmt_list error    {printf("eof is missing at the end of program\n");}        
+program : stmt_list  eof  {char s[]="program -> stmt_list\n"; strcat(buffer,s); if(!flag) printf("%s",buffer); exit(0);}
+        |stmt_list error    {printf("eof is missing at the end of program\n"); exit(0);}        
 
 stmt_list : stmt_list stmt {char s[]="stmt_list -> stmt_list stmt\n"; strcat(buffer,s);}
 	 | stmt      {char s[]="stmt_list-> stmt\n"; strcat(buffer,s);}
@@ -54,6 +54,7 @@ if_stmt : IF expr THEN stmt_list ENDIF                {char s[]=" if_stmt -> IF 
         | IF expr THEN stmt_list ELSE stmt_list ENDIF {char s[]="if_stmt ->IF expr THEN stmt_list ELSE stmt_list ENDIF \n"; strcat(buffer,s);}
         | IF expr THEN stmt_list error                {printf("endif is missing \n");}
         | IF expr THEN stmt_list ELSE stmt_list error {printf("endif is missing \n");}
+        | IF expr  error                                {printf("then is missing \n");}
 
 expr : expr eq Q { char s[]="expr -> expr == Q\n"; strcat(buffer,s);}
      | expr neq Q { char s[]="expr ->expr != Q  \n"; strcat(buffer,s);}
