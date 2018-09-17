@@ -42,7 +42,7 @@ void yyerror(char *s);
 "newline" 	{//printf("Keyword %s\n",yytext)
 		return NEWLINE;}
 
-[1-9][0-9]*	{//int a=atoi(yytext); printf("Number =%d\n",a);
+[0-9][0-9]*	{//int a=atoi(yytext); printf("Number =%d\n",a);
 		 return INT;}//float
 
 {letter}({letter}|{digit})* {//printf("identifier=%s\n",yytext);
