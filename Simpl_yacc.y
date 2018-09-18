@@ -35,7 +35,7 @@ stmt_list : stmt_list stmt {char s[]="stmt_list -> stmt_list stmt\n"; strcat(buf
 stmt : assign_stmt {char s[]="stmt -> assign_stmt \n"; strcat(buffer,s);}
      | print_stmt {char s[]="stmt ->  print_stmt\n"; strcat(buffer,s);}
      | if_stmt {char s[]="stmt -> if_stmt \n"; strcat(buffer,s);}
-     
+     |error ';' {printf("invalid statement\n");}
 
 assign_stmt : ID '=' expr ';'  {char s[]="assign_stmt -> ID = expr \n"; strcat(buffer,s);}
             | ID '=' expr error  {printf("';' missing\n");}
@@ -54,7 +54,13 @@ if_stmt : IF expr THEN stmt_list ENDIF                {char s[]=" if_stmt -> IF 
         | IF expr THEN stmt_list ELSE stmt_list ENDIF {char s[]="if_stmt ->IF expr THEN stmt_list ELSE stmt_list ENDIF \n"; strcat(buffer,s);}
         | IF expr THEN stmt_list error                {printf("endif is missing \n");}
         | IF expr THEN stmt_list ELSE stmt_list error {printf("endif is missing \n");}
-        
+        |IF expr error stmt_list b	
+b	: ELSE stmt_list ENDIF {printf("'then' is missing\n");}
+	| error                {printf("'then' and endif is missing \n");}
+	| ELSE stmt_list error   {printf("'then' and endif is missing \n");}
+	| ENDIF		       {printf("'then' is missing\n");}
+	
+
 
 expr : expr eq Q { char s[]="expr -> expr == Q\n"; strcat(buffer,s);}
      | expr neq Q { char s[]="expr ->expr != Q  \n"; strcat(buffer,s);}
