@@ -42,8 +42,10 @@ void yyerror(char *s);
 "newline" 	{
 		return NEWLINE;}
 
+
 [0-9][0-9]*	{
 		 return INT;}
+
 
 {letter}({letter}|{digit})* {
 			      return ID;}
