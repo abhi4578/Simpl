@@ -85,7 +85,7 @@ S : '(' expr ')' {char s[]="S -> '(' expr ')' \n"; strcat(buffer,s);}
  |'(' error ')'{printf("error in expression\n");}
   ;
 %%
-void yyerror (char *s) {fprintf (stderr, "%s at line number %d ", s,count);flag=1;printf("%s",buffer);} 
+void yyerror (char *s) {fprintf (stderr, "%s at line number %d ", s,count);flag=1;} 
 int main()
 {
 return yyparse();
