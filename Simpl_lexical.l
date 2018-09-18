@@ -4,61 +4,63 @@ digit  [0-9]
 #include<stdio.h>
 #include<stdlib.h>
 #include "y.tab.h"
+#include "Err.h"
+int count=1;
+char s[]="unexpected character " ;
 int yylex(void);
 void yyerror(char *s);
 %}
 %%
 
-[+-/*><=]        {//printf("Operator %c\n",yytext[0]);
-		return yytext[0];}
-"=="        {//printf("Operator %s\n",yytext);
-		  return eq;}
-"!="        {//printf("Operator %s\n",yytext);
-		  return neq;}
-"<="	    {//printf("Operator %s\n",yytext);
+[+-/*><=]        {return yytext[0];}
+"=="        {return eq;}
+"!="        {return neq;}
+"<="	    {
 		  return leq;}
 
-">=" 	    {//printf("Operator %s\n",yytext);
+">=" 	    {
 		  return geq;}
 
-[();]		 {//printf("Miscellaneous %c\n",yytext[0]);
+[();]		 {
 		  return yytext[0];}
 
-"if"		{//printf("Keyword %s\n",yytext)
+"if"		{
 		return IF;}
 
-"then"		{//printf("Keyword %s\n",yytext)
+"then"		{
 		return THEN;}
 
-"else"		{//printf("Keyword %s\n",yytext)
+"else"		{
 		return ELSE;}
 
-"print"		{//printf("Keyword %s\n",yytext)
+"print"		{
 		return PRINT;}
 
-"endif"		{//printf("Keyword %s\n",yytext)
+"endif"		{
 		return ENDIF;}
 
-"newline" 	{//printf("Keyword %s\n",yytext)
+"newline" 	{
 		return NEWLINE;}
 
-[0-9][0-9]*	{//int a=atoi(yytext); printf("Number =%d\n",a);
-		 return INT;}//float
 
-{letter}({letter}|{digit})* {//printf("identifier=%s\n",yytext);
+[0-9][0-9]*	{
+		 return INT;}
+
+
+{letter}({letter}|{digit})* {
 			      return ID;}
 
-["][^"]*["]	{//printf("string = %s\n",yytext);
+["][^"]*["]	{
 		return STRING;}
 
-[/][/][^\n]*		{//printf("Ignore comment\n");
-			;} // ignore that line
+[/][/][^\n]*		{;} 
 
 
-[#]		{return yytext[0];}
-[ \t\n]		{;}
+<<EOF>>	 {return eof;}
+[\n]	{count++;}
+[ \t]		{;}
 
-.               {yyerror ("unexpected character");}
+.               {yyerror (strcat(s,yytext));}
 
 %%
 int yywrap (void) {return 1;}

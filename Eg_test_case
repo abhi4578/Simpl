@@ -2,4 +2,3 @@ x = 10;
  y = 20; 
 print "the value of x is "; 
 print  x; 
-# //# depicts end of the program ,run it has ./Simpl <Eg_test_case
