@@ -3,7 +3,7 @@ digit  [0-9]
 %{
 #include<stdio.h>
 #include<stdlib.h>
-#include "y.tab.h"
+
 #include "Err.h"
 int count=1;
 char s[]="unexpected character " ;
