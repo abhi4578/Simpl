@@ -70,7 +70,7 @@ assign_b :ID{push();}'='{push();} expr
 print_stmt : PRINT expr ';'   {print(); char s[]="print_stmt -> PRINT expr ; \n"; strcat(buffer,s);} 
 	 | PRINT STRING {push(); }';'   {print(); char s[]="print_stmt ->  PRINT STRING ; \n"; strcat(buffer,s);} 
 	 | PRINT NEWLINE {push(); }';'  {print(); char s[]="print_stmt ->  PRINT NEWLINE ;\n"; strcat(buffer,s);}
-  	 | PRINT a {push();}error    {printf("';' missing\n");}
+  	 //| PRINT a {push();}error    {printf("';' missing\n");}
   //	 |PRINT error ';'    {printf("error after print\n");}
    
 //a : STRING | NEWLINE | expr 
@@ -182,7 +182,7 @@ void addto_symboltable(char s[20])
 
 void eval()
 {    char str_temp[20]; 
- 	sprintf(str_temp,"if not %s \n",st[top]);
+ 	sprintf(str_temp,"if not %s ",st[top]);
  	strcat(code,str_temp);
 	top--;
    sprintf(str_temp,"goto L : %d \n",++lnum);
