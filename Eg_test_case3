@@ -1,0 +1,16 @@
+x = 10;
+ y = 20; 
+print "the value of x is "; 
+print  x; 
+print  newline; 
+print "the value of y is "; 
+print  y;
+ print  newline; 
+print "the sum of x and y is ";
+ print  x + y;
+ print  newline; 
+if x < y then 
+print "x is smaller than y"; 
+else 
+print "x is bigger or equal than y" ;
+ endif 
