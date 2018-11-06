@@ -1,5 +1,5 @@
 # Simpl
-Generates parse tree for language called "Simpl".
+Generates intermediate code for language called "Simpl"
 
 # Language "Simpl"
  SimpL has following classes of tokens:
