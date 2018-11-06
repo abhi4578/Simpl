@@ -1,4 +1,4 @@
 x = 10;
  y = 20; 
 print "the value of x is "; 
-print  x; 
+print  x;

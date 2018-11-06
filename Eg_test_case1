@@ -1,0 +1,13 @@
+a=10; b=9; c=12;
+if a>b
+then
+	if a>c
+	then
+	print a;
+	else
+	print c;
+	endif
+else
+print a;
+endif
+

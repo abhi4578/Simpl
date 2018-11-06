@@ -1,0 +1,15 @@
+-------------------------
+if a>b
+then
+if a>c
+then
+print a;
+else
+print c;
+endif
+else
+print a;
+endif
+--------------------------
+
+
