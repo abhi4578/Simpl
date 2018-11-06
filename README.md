@@ -3,6 +3,7 @@ Generates parse tree for language called "Simpl".
 
 # Language "Simpl"
  SimpL has following classes of tokens:
+ 
           Operators : (+ - * /  = > >=  < <= == != )
           Parenthesis and Semicolon :  ( ) ;
           Keywords : if, then, else, endif, print, newline
@@ -12,6 +13,7 @@ Generates parse tree for language called "Simpl".
           Comments : Line starting with //
 
 Grammar is given below:
+
           program -> stmt_list 
           stmt_list -> stmt_list stmt  | stmt 
           stmt -> assign_stmt | print_stmt | if_stmt 
