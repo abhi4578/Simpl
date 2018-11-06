@@ -4,7 +4,7 @@
 #include<string.h>
 #include "Err.h"
 #include<ctype.h>
-char st[100][10];
+char st[100][100];
 int top=0;
 int label[20];
 int ltop=-1;
@@ -67,22 +67,22 @@ assign_stmt : assign_b ';'  {addto_symboltable(st[top-2]); assign_codegen();char
             
 assign_b :ID{push();}'='{push();} expr
 
-print_stmt : PRINT expr ';'   {print(); char s[]="print_stmt -> PRINT expr ; \n"; strcat(buffer,s);} 
-	 | PRINT STRING {push(); }';'   {print(); char s[]="print_stmt ->  PRINT STRING ; \n"; strcat(buffer,s);} 
-	 | PRINT NEWLINE {push(); }';'  {print(); char s[]="print_stmt ->  PRINT NEWLINE ;\n"; strcat(buffer,s);}
-  	 //| PRINT a {push();}error    {printf("';' missing\n");}
-  //	 |PRINT error ';'    {printf("error after print\n");}
+print_stmt : PRINT a  ';'   {print(); }
+  		  | PRINT a error    {printf("';' missing\n");}
+  	 	  |PRINT error ';'    {printf("error after print\n");}
    
-//a : STRING | NEWLINE | expr 
+a : STRING {push();} { char s[]="print_stmt ->  PRINT STRING ; \n"; strcat(buffer,s);} 
+ | NEWLINE {push();} { char s[]="print_stmt ->  PRINT NEWLINE ;\n"; strcat(buffer,s);}
+ | expr {char s[]="print_stmt -> PRINT expr ; \n"; strcat(buffer,s);} 
 
 if_stmt : bif {after_if(0);}  ENDIF {char s[]=" if_stmt -> IF expr THEN stmt_list ENDIF \n"; strcat(buffer,s);}
-        | bif_else ELSE  stmt_list  ENDIF {after_else();char s[]="if_stmt ->IF expr THEN stmt_list ELSE stmt_list ENDIF \n"; strcat(buffer,s);}
-        //| bif  error                {printf("endif is missing \n");}
-      	| bif_else ELSE stmt_list error {printf("endif is missing \n");}
+        | bif_else   stmt_list  ENDIF {after_else();char s[]="if_stmt ->IF expr THEN stmt_list ELSE stmt_list ENDIF \n"; strcat(buffer,s);}
+       // | bif  error                {printf("endif is missing \n");}
+      	| bif_else  stmt_list error {printf("endif is missing \n");}
 		|IF expr {eval();} error b
 
 bif		:  IF expr {eval();}  THEN stmt_list 
-bif_else : bif {after_if(1);}
+bif_else : bif {after_if(1);} ELSE
         
 b	: ELSE stmt_list ENDIF {printf("'then' is missing\n");}
 	| error                {printf("'then' and endif is missing \n");}
@@ -126,43 +126,47 @@ int lnum=0;
 
 int main()
 {
-printf("Enter the program : \n");
-return yyparse();
+	printf("Enter the program : \n");
+	return yyparse();
 }
 void push()
-{//printf("%s",yytext);	
-strcpy(st[++top],yytext);
+{
+	//printf("%s",yytext);	
+	strcpy(st[++top],yytext);
 }
 
 void binary_codegen()
-{ char str_temp[20];
-strcpy(temp,"t");
-sprintf(i_,"%d",temp_num);
-strcat(temp,i_);
-sprintf(str_temp,"%s = %s %s %s\n",temp,st[top-2],st[top-1],st[top]);
-top-=2;
-strcpy(st[top],temp);
-temp_num++;
-strcat(code,str_temp);
+{ 
+	char str_temp[100];
+	strcpy(temp,"t");
+	sprintf(i_,"%d",temp_num);
+	strcat(temp,i_);
+	sprintf(str_temp,"%s = %s %s %s\n",temp,st[top-2],st[top-1],st[top]);
+	top-=2;
+	strcpy(st[top],temp);
+	temp_num++;
+	strcat(code,str_temp);
 }
 
 void uminus_codegen()
- { char str_temp[20];
-strcpy(temp,"t");
-sprintf(i_,"%d",temp_num);
-strcat(temp,i_);
-sprintf(str_temp,"%s = -%s\n",temp,st[top]);
-strcat(code,str_temp);
-top--;
-strcpy(st[top],temp);
-temp_num++;
+ { 
+	char str_temp[100];
+	strcpy(temp,"t");
+	sprintf(i_,"%d",temp_num);
+	strcat(temp,i_);
+	sprintf(str_temp,"%s = -%s\n",temp,st[top]);
+	strcat(code,str_temp);
+	top--;
+	strcpy(st[top],temp);
+	temp_num++;
 }
 
 void assign_codegen()
-{ char str_temp[20];
-sprintf(str_temp,"%s = %s\n",st[top-2],st[top]);
-top-=2;
-strcat(code,str_temp);
+{ 
+	char str_temp[100];
+	sprintf(str_temp,"%s = %s\n",st[top-2],st[top]);
+	top-=2;
+	strcat(code,str_temp);
 }
 
 void addto_symboltable(char s[20])
@@ -181,7 +185,7 @@ void addto_symboltable(char s[20])
 }
 
 void eval()
-{    char str_temp[20]; 
+{    char str_temp[100]; 
  	sprintf(str_temp,"if not %s ",st[top]);
  	strcat(code,str_temp);
 	top--;
@@ -193,7 +197,7 @@ void eval()
 
 void after_if(int n)
 { 	int x=label[ltop--];
-	char str_temp[20];
+	char str_temp[100];
 	if(n==1) 
 	{ 
 	sprintf(str_temp,"goto L:%d \n",++lnum);
@@ -209,14 +213,14 @@ void after_if(int n)
 }
 
 void after_else()
-{ char str_temp[20];
+{ char str_temp[100];
   int x=label[ltop--];
   sprintf(str_temp,"L: %d \n",x);
   strcat(code,str_temp);
 }
 
 void print()
-{    char str_temp[20];
+{    char str_temp[100];
 	sprintf(str_temp,"print %s\n",st[top]);
 	strcat(code,str_temp);
 	top--;
