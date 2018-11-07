@@ -21,13 +21,16 @@ void uminus_codegen();
 void push();
 void assign_codegen();
 void print();
-void eval();
+void eval(int n);
 void after_if(int n);
 void after_else();
 void addto_symboltable();
+void label_while();
+void after_while();
 void lookup(char s[20]);
 int pointer=0;
 char data[1000];
+int start,end;
 char symbol_table[20][20];
 %}
 %start program
@@ -45,6 +48,9 @@ char symbol_table[20][20];
 %token neq
 %token eof
 %token eq
+%token WHILE
+%token DO
+%token OR
 %%
 
 program : stmt_list  eof {//char s[]="program -> stmt_list\n"; strcat(buffer,s); if(!flag) printf("%s",buffer); 
@@ -61,6 +67,12 @@ stmt : assign_stmt {char s[]="stmt -> assign_stmt \n"; strcat(buffer,s);}
      | print_stmt {char s[]="stmt ->  print_stmt\n"; strcat(buffer,s);}
      | if_stmt {char s[]="stmt -> if_stmt \n"; strcat(buffer,s);}
      |error ';' {printf("invalid statement\n");}
+     | while_stmt
+     | do_while ';'
+
+while_stmt : WHILE {label_while();}expr {eval(0);} '{' stmt_list '}' {after_while();}
+
+do_while :	DO {label_while();} '{' stmt_list '}' WHILE expr {eval(0);} {after_while();}
 
 assign_stmt : assign_b ';'  {addto_symboltable(st[top-2]); assign_codegen();char s[]="assign_stmt -> ID = expr \n"; strcat(buffer,s);}
             | assign_b error  {printf("';' missing\n");}
@@ -71,7 +83,7 @@ print_stmt : PRINT a  ';'   {print(); }
   		  | PRINT a error    {printf("';' missing\n");}
   	 	  |PRINT error ';'    {printf("error after print\n");}
    
-a : STRING {push();} { char s[]="print_stmt ->  PRINT STRING ; \n"; strcat(buffer,s);} 
+a : STRING {push();} {char s[]="print_stmt ->  PRINT STRING ; \n"; strcat(buffer,s);} 
  | NEWLINE {push();} { char s[]="print_stmt ->  PRINT NEWLINE ;\n"; strcat(buffer,s);}
  | expr {char s[]="print_stmt -> PRINT expr ; \n"; strcat(buffer,s);} 
 
@@ -79,9 +91,9 @@ if_stmt : bif {after_if(0);}  ENDIF {char s[]=" if_stmt -> IF expr THEN stmt_lis
         | bif_else   stmt_list  ENDIF {after_else();char s[]="if_stmt ->IF expr THEN stmt_list ELSE stmt_list ENDIF \n"; strcat(buffer,s);}
        // | bif  error                {printf("endif is missing \n");}
       	| bif_else  stmt_list error {printf("endif is missing \n");}
-		|IF expr {eval();} error b
+		|IF expr {eval(0);} error b
 
-bif		:  IF expr {eval();}  THEN stmt_list 
+bif		:  IF expr {eval(0);}  THEN stmt_list 
 bif_else : bif {after_if(1);} ELSE
         
 b	: ELSE stmt_list ENDIF {printf("'then' is missing\n");}
@@ -90,9 +102,12 @@ b	: ELSE stmt_list ENDIF {printf("'then' is missing\n");}
 	| ENDIF		       {printf("'then' is missing\n");}
 	
 
+expr : expr1
+	  | expr {eval(2);} OR expr1 {eval(1);}
 
-expr : expr eq {push();} Q { binary_codegen(); char s[]="expr -> expr == Q\n"; strcat(buffer,s);}
-     | expr neq {push();} Q { binary_codegen();char s[]="expr ->expr != Q  \n"; strcat(buffer,s);}
+expr1 : expr1 eq {push();} Q { binary_codegen(); char s[]="expr -> expr == Q\n"; strcat(buffer,s);}
+     | expr1 neq {push();} Q { binary_codegen();char s[]="expr ->expr != Q  \n"; strcat(buffer,s);}
+     //| expr OR {push();} Q {binary_codegen();}
      | Q { char s[]="expr -> Q \n"; strcat(buffer,s);}
        
 Q : Q '<'{push();} exp { binary_codegen();char s[]="Q -> Q < exp\n"; strcat(buffer,s);}
@@ -119,8 +134,10 @@ S : '(' expr ')' {char s[]="S -> '(' expr ')' \n"; strcat(buffer,s);}
   | '(' expr error {printf("')' missing\n");}
  |'(' error ')'{printf("error in expression\n");}
   ;
+
+
 %%
-void yyerror (char *s) {fprintf (stderr, "%s at line number %d ", s,count);flag=1;} 
+void yyerror (char *s) {fprintf (stderr, "%s at line number %d ", s,count); flag=1;} 
 #include "lex.yy.c"
 int lnum=0;
 
@@ -184,14 +201,30 @@ void addto_symboltable(char s[20])
 
 }
 
-void eval()
-{    char str_temp[100]; 
- 	sprintf(str_temp,"if not %s ",st[top]);
- 	strcat(code,str_temp);
-	top--;
-   sprintf(str_temp,"goto L : %d \n",++lnum);
-   label[++ltop]=lnum;
-   strcat(code,str_temp);
+void eval(int n)
+{    char str_temp[100],str_temp1[20]; 
+	static int flag=0;
+ 	if((n==0 && flag==0))
+	 {sprintf(str_temp,"if not %s goto L : %d \n",st[top--],++lnum);
+	 strcat(code,str_temp);
+	 label[++ltop]=lnum;
+	 }
+	else if (n==2)
+	{ sprintf(str_temp,"if %s goto L : %d \n",st[top--],++lnum);
+	strcat(code,str_temp); 
+	label[++ltop]=lnum;}
+	
+	else if(n==1)
+	{ flag=1;
+	 sprintf(str_temp,"if not %s goto L : %d \n",st[top--],++lnum);
+	 strcat(code,str_temp);
+	 sprintf(str_temp1,"L: %d  \n",label[ltop--]);
+	 strcat(code,str_temp1);
+	 label[++ltop]=lnum;
+	}
+	else if(!n && flag) flag=0;
+	
+   
 
 }
 
@@ -235,4 +268,18 @@ void  lookup(char s[20])
 	printf("%s variable undefined\n",s);
 	exit(0);
 	
+}
+void label_while()
+{   char str_temp[100];
+	 sprintf(str_temp," L : %d \n",++lnum);
+	 label[++ltop]=lnum;
+	 strcat(code,str_temp);
+}
+void after_while()
+{	int x=label[ltop--];
+	char str_temp[100],str_temp1[100];
+	sprintf(str_temp,"goto L : %d \n",label[ltop--]);
+	 strcat(code,str_temp);
+  	sprintf(str_temp1,"L: %d \n",x);
+  	strcat(code,str_temp1);
 }

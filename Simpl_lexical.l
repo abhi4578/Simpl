@@ -11,7 +11,12 @@ int yylex(void);
 void yyerror(char *s);
 %}
 %%
-
+"or"  { return OR;
+ 
+		}
+[{}]  {
+        return yytext[0];
+		} 
 [+-/*><=]        {return yytext[0];}
 "=="        {return eq;}
 "!="        {return neq;}
@@ -41,6 +46,16 @@ void yyerror(char *s);
 
 "newline" 	{
 		return NEWLINE;}
+		
+"while"  {
+		return WHILE;	
+		}
+
+		
+"do"	{ 
+		
+		return DO;
+		}
 
 
 [0-9][0-9]*	{

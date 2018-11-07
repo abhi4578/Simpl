@@ -1,2 +1,13 @@
-
-a=10 + 20*(3 - 4 + 25);
+x=8;
+y=10;
+do
+{
+    x=x+1;
+    while(y<15)
+    {
+        y=y+1;
+        print "hi";
+    }
+    print "hello";
+}
+while(x<10);
