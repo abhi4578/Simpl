@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 x=4;
 y=5;
 if x==0 or x>4
@@ -7,9 +6,3 @@ print "hello";
 else
 print "world";
 endif
-=======
-x = 10;
- y = 20; 
-print "the value of x is "; 
-print  x;
->>>>>>> 8d58fa7a397580323c9974898cc96b079efd5657
